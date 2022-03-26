@@ -4,11 +4,27 @@ import Cards from "../components/Cards";
 export default function Main(){
 
     const [data,setData] = useState([]);
-    const [timer,setTimer] = useState("");
+    const [filtered,setFiltered] = useState([]);
+    const [years,setYears] = useState([]);
+    const [timer,setTimer] = useState(" ");
+    const [q,setQ] = useState("default");
 
     useEffect(()=>{
         setInitialData();
+        const d = new Date();
+        let year = d.getFullYear();
+        let arr=new Array(100).fill();
+        arr = arr.map((idx,i)=>{
+            return (year-i).toString();
+        })
+        setYears(arr);
+
     },[])
+
+    useEffect(()=>{
+        setFiltered(data);
+        setQ("default")
+    },[data])
 
     async function setInitialData(){
         try{
@@ -36,6 +52,15 @@ export default function Main(){
         setTimer(timeout);
     }
 
+    const handleSelect = (e)=>{
+        setQ(e.target.value);
+        setFiltered(data.filter((movie)=>{
+            if(movie.release_date)
+                return movie.release_date.split("-")[0]===e.target.value;
+            else return false;
+        }))
+    }
+
     return(<>
         <div className="container">
             <nav className="navbar navbar-light bg-white">
@@ -46,10 +71,20 @@ export default function Main(){
                     </form>
                 </div>
             </nav>
+            <label>Filter 
+                <select className="mx-2" value={q} onChange={(e)=>handleSelect(e)}>
+                    <option value={"default"} disabled>
+                        year
+                    </option>
+                    {years.map((year,i)=>(
+                        <option key={i} value={year}>{year}</option>
+                    ))}
+                </select>
+            </label>
             <div className="row row-cols-sm-3 row-cols-md-4 row-cols-lg-6 mt-3" >
-            {data.map((movie,i)=>(
-                <Cards key={i} movie={movie}/>
-            ))}
+                {filtered.map((movie,i)=>(
+                    <Cards key={i} movie={movie}/>
+                ))}
             </div>
         </div>
     </>)
