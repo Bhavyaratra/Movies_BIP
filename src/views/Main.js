@@ -9,7 +9,7 @@ export default function Main(){
     useEffect(()=>{
         setInitialData();
     },[])
-    
+
     async function setInitialData(){
         try{
             const res = await fetch("https://movie-task.vercel.app/api/popular?page=1");
@@ -24,7 +24,6 @@ export default function Main(){
         if(query!==""){
             const res = await fetch(`https://movie-task.vercel.app/api/search?page=1&query=${query}`);
             const resJson = await res.json();
-            console.log(resJson);
             setData(resJson.data.results);
         }else{
             setInitialData();
@@ -47,7 +46,11 @@ export default function Main(){
                     </form>
                 </div>
             </nav>
-            <Cards data={data}/>
+            <div className="row row-cols-sm-3 row-cols-md-4 row-cols-lg-6 mt-3" >
+            {data.map((movie,i)=>(
+                <Cards key={i} movie={movie}/>
+            ))}
+            </div>
         </div>
     </>)
 }
