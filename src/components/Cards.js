@@ -9,6 +9,7 @@ export default function Cards(props){
     const movie = props.movie;
 
     
+    
     return(<>
             {showModal && <Modal id={movie.id} setShowModal={setShowModal}/>}
             <div className="col d-flex justify-content-center" onClick={(e)=>{

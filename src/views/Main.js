@@ -1,12 +1,15 @@
 import { useState,useEffect } from "react";
 import Cards from "../components/Cards";
+import Loader from "../util/Loader";
 
 export default function Main(){
 
     const [data,setData] = useState([]);
     const [filtered,setFiltered] = useState([]);
     const [years,setYears] = useState([]);
-    const [timer,setTimer] = useState(" ");
+    const [timer,setTimer] = useState();
+    const [error,setError] = useState("");
+    const [isLoading,setIsLoading] = useState(true);
     const [q,setQ] = useState("default");
 
     useEffect(()=>{
@@ -31,19 +34,33 @@ export default function Main(){
             const res = await fetch("https://movie-task.vercel.app/api/popular?page=1");
             const resJson = await res.json();
             setData(resJson.data.results);
+            setIsLoading(false);
+
         }catch(error){
+            setIsLoading(false);
+            setError(error.message);
             console.log("error while fetching",error);
         }
     } 
 
     const searchData =async (query)=>{
+        setIsLoading(true);
         if(query!==""){
-            const res = await fetch(`https://movie-task.vercel.app/api/search?page=1&query=${query}`);
-            const resJson = await res.json();
-            setData(resJson.data.results);
+            try{
+                const res = await fetch(`https://movie-task.vercel.app/api/search?page=1&query=${query}`);
+                const resJson = await res.json();
+                if(!resJson.data.results.length) setError("No results found");
+                else setError("");
+                setData(resJson.data.results);
+                setIsLoading(false);
+            }catch(err){
+                setError(err);
+                setIsLoading(false);
+            }
         }else{
             setInitialData();
         }
+        
     }
 
     const handleSearch = (e)=>{
@@ -71,7 +88,7 @@ export default function Main(){
                     </form>
                 </div>
             </nav>
-            <label>Filter 
+                <span>Filter</span> 
                 <select className="mx-2" value={q} onChange={(e)=>handleSelect(e)}>
                     <option value={"default"} disabled>
                         year
@@ -80,12 +97,18 @@ export default function Main(){
                         <option key={i} value={year}>{year}</option>
                     ))}
                 </select>
-            </label>
-            <div className="row row-cols-sm-3 row-cols-md-4 row-cols-lg-6 mt-3" >
-                {filtered.map((movie,i)=>(
-                    <Cards key={i} movie={movie}/>
-                ))}
-            </div>
+            
+            {error && <p className="text-danger">{error}</p>}
+            {isLoading ? 
+                <Loader/>
+                :
+                <div className="row row-cols-sm-3 row-cols-md-4 row-cols-lg-6 mt-3" >
+                    {filtered.map((movie,i)=>(
+                        <Cards key={i} movie={movie}/>
+                    ))}
+                </div>
+            }
+            
         </div>
     </>)
 }
