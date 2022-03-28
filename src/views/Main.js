@@ -71,11 +71,14 @@ export default function Main(){
 
     const handleSelect = (e)=>{
         setQ(e.target.value);
+        if(e.target.value==="default"){
+            setFiltered(data);
+        } else{
         setFiltered(data.filter((movie)=>{
             if(movie.release_date)
                 return movie.release_date.split("-")[0]===e.target.value;
             else return false;
-        }))
+        }))}
     }
 
     return(<>
@@ -90,8 +93,8 @@ export default function Main(){
             </nav>
                 <span>Filter</span> 
                 <select className="mx-2" value={q} onChange={(e)=>handleSelect(e)}>
-                    <option value={"default"} disabled>
-                        year
+                    <option value={"default"}>
+                        select year
                     </option>
                     {years.map((year,i)=>(
                         <option key={i} value={year}>{year}</option>
