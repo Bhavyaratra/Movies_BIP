@@ -48,7 +48,7 @@ export default function Main({ initMovies, initError }) {
 
   const handleSearch = (e) => {
     clearTimeout(timer);
-    const timeout = setTimeout(() => searchData(e.target.value), 300);
+    const timeout = setTimeout(() => searchData(e.target.value.trim()), 300);
     setTimer(timeout);
   };
 
