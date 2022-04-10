@@ -1,8 +1,8 @@
-function Header({ handleSearch }) {
+function Header({ text, handleSearch }) {
   return (
     <nav className="navbar navbar-light bg-white">
       <div className="container-fluid">
-        <span className="navbar-brand">Movies</span>
+        <span className="navbar-brand">{text}</span>
         <form className="d-flex w-50">
           <input
             className="form-control rounded-pill"
@@ -16,5 +16,9 @@ function Header({ handleSearch }) {
     </nav>
   );
 }
+
+Header.defaultProps = {
+  text: "Movies",
+};
 
 export default Header;
