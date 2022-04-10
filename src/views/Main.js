@@ -3,45 +3,25 @@ import Cards from "../components/Cards";
 import Header from "../components/Header";
 import Loader from "../util/Loader";
 
-export default function Main() {
-  const [data, setData] = useState([]);
+export default function Main({ initMovies, initError }) {
+  const [data, setData] = useState(initMovies);
   const [filtered, setFiltered] = useState([]);
-  const [years, setYears] = useState([]);
   const [timer, setTimer] = useState();
-  const [error, setError] = useState("");
-  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState(initError);
+  const [isLoading, setIsLoading] = useState(false);
   const [q, setQ] = useState("default");
 
-  useEffect(() => {
-    setInitialData();
-    const d = new Date();
-    let year = d.getFullYear();
-    let arr = new Array(year - 1887).fill();
-    arr = arr.map((idx, i) => {
-      return (year - i).toString();
-    });
-    setYears(arr);
-  }, []);
+  const d = new Date();
+  let year = d.getFullYear();
+  let yearList = new Array(year - 1887).fill();
+  yearList = yearList.map((idx, i) => {
+    return (year - i).toString();
+  });
 
   useEffect(() => {
     setFiltered(data);
     setQ("default");
   }, [data]);
-
-  async function setInitialData() {
-    try {
-      const res = await fetch(
-        "https://movie-task.vercel.app/api/popular?page=1"
-      );
-      const resJson = await res.json();
-      setData(resJson.data.results);
-      setIsLoading(false);
-    } catch (error) {
-      setIsLoading(false);
-      setError(error.message);
-      console.log("error while fetching", error);
-    }
-  }
 
   const searchData = async (query) => {
     setIsLoading(true);
@@ -61,7 +41,8 @@ export default function Main() {
       }
     } else {
       setError("");
-      setInitialData();
+      setData(initMovies);
+      setIsLoading(false);
     }
   };
 
@@ -75,14 +56,15 @@ export default function Main() {
     setQ(e.target.value);
     if (e.target.value === "default") {
       setFiltered(data);
+      setError("");
     } else {
-      setFiltered(
-        data.filter((movie) => {
-          if (movie.release_date)
-            return movie.release_date.split("-")[0] === e.target.value;
-          else return false;
-        })
-      );
+      const filteredData = data.filter((movie) => {
+        if (movie.release_date)
+          return movie.release_date.split("-")[0] === e.target.value;
+        else return false;
+      });
+      filteredData.length === 0 ? setError("No Result Found") : setError("");
+      setFiltered(filteredData);
     }
   };
 
@@ -93,7 +75,7 @@ export default function Main() {
         <span>Filter</span>
         <select className="mx-2" value={q} onChange={(e) => handleSelect(e)}>
           <option value={"default"}>select year</option>
-          {years.map((year, i) => (
+          {yearList.map((year, i) => (
             <option key={i} value={year}>
               {year}
             </option>
